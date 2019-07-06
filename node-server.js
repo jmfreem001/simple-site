@@ -5,27 +5,19 @@ const url = require('url');
 http.createServer((req, res) => {
   // Break the request object into a query object that can break query into elements
   const query = url.parse(req.url);
-  let filename = `.${query.pathname}.html`;
-  console.table(query);
-  if (query.pathname === '/'){
+  let filename = '';
+  if (query.pathname === '/') {
     filename = './index.html';
+  } else if (query.pathname === '/contact-me' || query.pathname === '/about') {
+    filename = `.${query.pathname}.html`;
+  } else {
+    filename = './404.html';
   }
-  console.log(`Filename ${filename}`);
   fs.readFile(filename, (err, data) => {
     if (err) {
-      console.log(err);
-      //If file doesn't exist render the 404 page. 
-      if (err.code === 'ENOENT'){
-        console.log("THIS HAPPENED!")
-        fs.readFile('404.html', (err, data) => {
-          if (err) console.log(err);
-          res.writeHead(404, { 'Content-Type': 'text/html'} );
-          res.write(data);
-          return res.end();
-        });
-      }
       res.writeHead(500, {'Content-Type': 'text/html'});
-      return res.end();
+      console.log(err);
+      return res.end('Error: Contact your system administrator.');
     } 
     res.writeHead(200, { 'Content-Type': 'text/html'} );
     res.write(data);
