@@ -1,28 +1,23 @@
-const http = require('http');
-const fs = require('fs');
-const url = require('url');
 
-http.createServer((req, res) => {
-  // Break the request object into a query object that can break query into elements
-  const query = url.parse(req.url);
-  let filename = '';
-  if (query.pathname === '/') {
-    filename = './index.html';
-  } else if (query.pathname === '/contact-me' || query.pathname === '/about') {
-    filename = `.${query.pathname}.html`;
-  } else {
-    filename = './404.html';
-  }
-  fs.readFile(filename, (err, data) => {
-    if (err) {
-      res.writeHead(500, {'Content-Type': 'text/html'});
-      console.log(err);
-      return res.end('Error: Contact your system administrator.');
-    } 
-    res.writeHead(200, { 'Content-Type': 'text/html'} );
-    res.write(data);
-    return res.end();
-  });
-}).listen(8080);
+const path = require('path');
+const express = require('express');
 
-  
+const app = express();
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'about.html'));
+});
+
+app.get('/contact-me', (req, res) => {
+  res.sendFile(path.join(__dirname, 'contact-me.html'));
+});
+
+app.use((req, res, next) => {
+  res.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
+app.listen(8080, () => console.log('App listening on port 8080'));
